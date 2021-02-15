@@ -5,6 +5,7 @@ defmodule Homework.Merchants do
 
   import Ecto.Query, warn: false
   alias Homework.Repo
+  alias Homework.Pagination
 
   alias Homework.Merchants.Merchant
 
@@ -13,12 +14,30 @@ defmodule Homework.Merchants do
 
   ## Examples
 
-      iex> list_merchants([])
+      iex> list_merchants(%{limit: 10, offset: 0})
       [%Merchant{}, ...]
 
   """
-  def list_merchants(_args) do
-    Repo.all(Merchant)
+  def list_merchants(args) do
+    query = from m in Merchant
+    query_with_limit_and_offset = Pagination.add_limit_and_offset(query, args.limit, args.offset)
+    merchants = Repo.all(query_with_limit_and_offset)
+    for merchant <- merchants, do: Map.put_new(merchant, :total_rows, Pagination.get_total_rows(query))
+  end
+
+  @doc """
+  Gets all merchants that have a name that fuzzy matches the given name by 5 or less string distance 
+
+  ## Examples
+  
+    iex> fuzzy_search_merchants_by_name(%{name: "Connelly"})
+    [%Merchant{name: "Connelly", ...}, %Merchant{name: "Connelley", ...}, ...]
+  """
+  def fuzzy_search_merchants_by_name(args) do
+    query = from m in Merchant, where: fragment("levenshtein(?, ?)", m.name, ^args.name) <= ^args.string_difference
+    query_with_limit_and_offset = Pagination.add_limit_and_offset(query, args.limit, args.offset)
+    merchants = Repo.all(query_with_limit_and_offset)
+    for merchant <- merchants, do: Map.put_new(merchant, :total_rows, Pagination.get_total_rows(query))
   end
 
   @doc """

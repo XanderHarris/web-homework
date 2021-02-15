@@ -9,11 +9,13 @@ defmodule HomeworkWeb.Schemas.TransactionsSchema do
   object :transaction do
     field(:id, non_null(:id))
     field(:user_id, :id)
-    field(:amount, :integer)
+    field(:amount, :float)
     field(:credit, :boolean)
     field(:debit, :boolean)
     field(:description, :string)
     field(:merchant_id, :id)
+    field(:company_id, :id)
+    field(:total_rows, :id)
     field(:inserted_at, :naive_datetime)
     field(:updated_at, :naive_datetime)
 
@@ -24,6 +26,10 @@ defmodule HomeworkWeb.Schemas.TransactionsSchema do
     field(:merchant, :merchant) do
       resolve(&TransactionsResolver.merchant/3)
     end
+
+    field(:company, :company) do
+      resolve(&TransactionsResolver.company/3)
+    end
   end
 
   object :transaction_mutations do
@@ -31,8 +37,9 @@ defmodule HomeworkWeb.Schemas.TransactionsSchema do
     field :create_transaction, :transaction do
       arg(:user_id, non_null(:id))
       arg(:merchant_id, non_null(:id))
-      @desc "amount is in cents"
-      arg(:amount, non_null(:integer))
+      arg(:company_id, non_null(:id))
+      @desc "amount is in USD format ie. 20.99"
+      arg(:amount, non_null(:float))
       arg(:credit, non_null(:boolean))
       arg(:debit, non_null(:boolean))
       arg(:description, non_null(:string))
@@ -45,8 +52,9 @@ defmodule HomeworkWeb.Schemas.TransactionsSchema do
       arg(:id, non_null(:id))
       arg(:user_id, non_null(:id))
       arg(:merchant_id, non_null(:id))
-      @desc "amount is in cents"
-      arg(:amount, non_null(:integer))
+      arg(:company_id, non_null(:id))
+      @desc "amount is in USD format ie. 20.99"
+      arg(:amount, non_null(:float))
       arg(:credit, non_null(:boolean))
       arg(:debit, non_null(:boolean))
       arg(:description, non_null(:string))
@@ -59,6 +67,18 @@ defmodule HomeworkWeb.Schemas.TransactionsSchema do
       arg(:id, non_null(:id))
 
       resolve(&TransactionsResolver.delete_transaction/3)
+    end
+  end
+
+  object :transaction_queries do
+    @desc "Get transactions where amount between min and mix"
+    field :get_transactions_where_amount_between_min_and_max, list_of(:transaction) do
+      arg(:min, non_null(:float))
+      arg(:max, non_null(:float))
+      arg(:limit, non_null(:integer))
+      arg(:offset, non_null(:integer))
+
+      resolve(&TransactionsResolver.get_transactions_where_amount_between_min_and_max/3)
     end
   end
 end

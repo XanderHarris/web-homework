@@ -9,6 +9,13 @@ defmodule HomeworkWeb.Resolvers.MerchantsResolver do
   end
 
   @doc """
+  Get merchants that fuzzy match the name string in args
+  """
+  def fuzzy_search_merchants_by_name(_root, args, _info) do
+    {:ok, Merchants.fuzzy_search_merchants_by_name(args)}
+  end
+
+  @doc """
   Create a new merchant
   """
   def create_merchant(_root, args, _info) do
@@ -47,7 +54,7 @@ defmodule HomeworkWeb.Resolvers.MerchantsResolver do
         {:ok, merchant}
 
       error ->
-        {:error, "could not update merchant: #{inspect(error)}"}
+        {:error, "could not delete merchant: #{inspect(error)}"}
     end
   end
 end

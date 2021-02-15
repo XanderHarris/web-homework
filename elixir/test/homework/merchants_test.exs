@@ -24,7 +24,16 @@ defmodule Homework.MerchantsTest do
 
     test "list_merchants/1 returns all merchants" do
       merchant = merchant_fixture()
-      assert Merchants.list_merchants([]) == [merchant]
+      merchant = Map.put_new(merchant, :total_rows, 1)
+      assert Merchants.list_merchants(%{limit: 1, offset: 0}) == [merchant]
+    end
+
+    test "fuzzy_search_merchants_by_name/1 returns merchants with close enough names" do
+      merchant = merchant_fixture()
+      merchant = Map.put_new(merchant, :total_rows, 1)
+      assert Enum.member?(Merchants.fuzzy_search_merchants_by_name(%{name: "some", string_difference: 5, limit: 1, offset: 0}), merchant) == true
+      assert Enum.member?(Merchants.fuzzy_search_merchants_by_name(%{name: "smoe naem", string_difference: 5, limit: 1, offset: 0}), merchant) == true
+      assert Enum.member?(Merchants.fuzzy_search_merchants_by_name(%{name: "car town", string_difference: 5, limit: 1, offset: 0}), merchant) == false
     end
 
     test "get_merchant!/1 returns the merchant with given id" do

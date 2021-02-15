@@ -10,6 +10,7 @@ defmodule HomeworkWeb.Schemas.MerchantsSchema do
     field(:id, non_null(:id))
     field(:name, :string)
     field(:description, :string)
+    field(:total_rows, :integer)
     field(:inserted_at, :naive_datetime)
     field(:updated_at, :naive_datetime)
   end
@@ -37,6 +38,18 @@ defmodule HomeworkWeb.Schemas.MerchantsSchema do
       arg(:id, non_null(:id))
 
       resolve(&MerchantsResolver.delete_merchant/3)
+    end
+  end
+
+  object :merchant_queries do
+    @desc "Fuzzy search for merchants by name"
+    field :get_merchants_by_name, list_of(:merchant) do
+      arg(:name, non_null(:string))
+      arg(:limit, non_null(:integer))
+      arg(:offset, non_null(:integer))
+      arg(:string_difference, non_null(:integer))
+
+      resolve(&MerchantsResolver.fuzzy_search_merchants_by_name/3)
     end
   end
 end

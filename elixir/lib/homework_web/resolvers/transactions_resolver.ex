@@ -2,9 +2,10 @@ defmodule HomeworkWeb.Resolvers.TransactionsResolver do
   alias Homework.Merchants
   alias Homework.Transactions
   alias Homework.Users
+  alias Homework.Companies
 
   @doc """
-  Get a list of transcations
+  Get a list of transactions
   """
   def transactions(_root, args, _info) do
     {:ok, Transactions.list_transactions(args)}
@@ -22,6 +23,20 @@ defmodule HomeworkWeb.Resolvers.TransactionsResolver do
   """
   def merchant(_root, _args, %{source: %{merchant_id: merchant_id}}) do
     {:ok, Merchants.get_merchant!(merchant_id)}
+  end
+
+  @doc """
+  Get the company associated with a transaction
+  """
+  def company(_root, _args, %{source: %{company_id: company_id}}) do
+    {:ok, Companies.get_company!(company_id)}
+  end
+
+  @doc """
+  Get the transactions where amount between min and max
+  """
+  def get_transactions_where_amount_between_min_and_max(_root, args, _info) do
+    {:ok, Transactions.get_transactions_where_amount_between_min_and_max(args)}
   end
 
   @doc """
